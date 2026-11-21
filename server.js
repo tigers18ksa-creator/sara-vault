@@ -26,5 +26,5 @@ app.post('/api/unlock',route(async(req,res)=>{const d=await state();if(typeof re
 app.post('/api/logout',(req,res)=>{res.setHeader('Set-Cookie','sv_auth=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');res.json({ok:true})});
 app.post('/api/admin',route(async(req,res)=>{if(!owner(req))return res.status(403).json({error:'للمالك فقط'});const {closed,locked,pin}=req.body;if(closed!==undefined&&typeof closed!=='boolean'||locked!==undefined&&(!Array.isArray(locked)||locked.length!==12||locked.some(x=>typeof x!=='boolean'))||pin!==undefined&&(typeof pin!=='string'||pin.length<4||pin.length>64))return res.status(400).json({error:'إعدادات غير صالحة'});await change(d=>{if(closed!==undefined)d.closed=closed;if(locked!==undefined)d.locked=locked;if(pin!==undefined){d.pinHash=hash(pin);d.pinVersion++}return d});res.json({ok:true})}));
 app.get('/api/health',async(req,res)=>res.status(await ready?200:503).json({ready:await ready}));
-app.use(express.static(path.resolve('.'),{index:'index.html'}));
+app.get('/',(req,res)=>res.sendFile(path.resolve('app.html')));app.use(express.static(path.resolve('.'),{index:false}));
 app.listen(process.env.PORT||3000,()=>console.log('Sara Vault server listening'));
